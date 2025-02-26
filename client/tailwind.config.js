@@ -1,17 +1,15 @@
-import plugin from 'tailwindcss/plugin';
-
+/* eslint-disable no-undef */
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  content: [
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
+    'node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}',
+  ],
   theme: {
     extend: {},
   },
   plugins: [
-    plugin(function ({ addUtilities }) {
-      addUtilities({
-        '.rotate-15': {
-          transform: 'rotate(15deg)',
-        },
-      });
-    }),
+    require('flowbite/plugin'),
   ],
 };
