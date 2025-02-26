@@ -16,6 +16,9 @@ const Dashboard = () => {
   const [groups, setGroups] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [messageContent, setMessageContent] = useState("");
+  const [path,setPath]=useState("");
+
+  
 
   // Mock data fetching
   useEffect(() => {
@@ -45,76 +48,131 @@ const Dashboard = () => {
    
 
     const mockBundles = [
-        { 
-            id: 'B001', 
-            senderNode: 'Jalandhar', 
-            receiverNode: 'Madurai', 
-            status: 'on-time', 
-            parcels: [
-              { parcelId: 'P001', mailId: 'M123', weight: '2kg', dimensions: '30x20x15 cm' },
-              { parcelId: 'P002', mailId: 'M124', weight: '3kg', dimensions: '25x25x20 cm' },
-              { parcelId: 'P003', mailId: 'M125', weight: '1kg', dimensions: '15x10x8 cm' },
-              { parcelId: 'P004', mailId: 'M126', weight: '5kg', dimensions: '40x30x20 cm' },
-              { parcelId: 'P005', mailId: 'M127', weight: '2.5kg', dimensions: '35x25x18 cm' }
-            ]
-          },
-          { 
-            id: 'B002', 
-            senderNode: 'Patiyala', 
-            receiverNode: 'Madurai', 
-            status: 'delayed', 
-            parcels: [
-              { parcelId: 'P006', mailId: 'M128', weight: '3kg', dimensions: '28x22x18 cm' },
-              { parcelId: 'P007', mailId: 'M129', weight: '2.5kg', dimensions: '32x24x16 cm' },
-              { parcelId: 'P008', mailId: 'M130', weight: '1.2kg', dimensions: '22x18x12 cm' },
-              { parcelId: 'P009', mailId: 'M131', weight: '4kg', dimensions: '38x30x22 cm' },
-              { parcelId: 'P010', mailId: 'M132', weight: '6kg', dimensions: '45x35x25 cm' }
-            ]
-          },
-          { 
-            id: 'B003', 
-            senderNode: 'Patiyala', 
-            receiverNode: 'Vellore', 
-            status: 'on-time', 
-            parcels: [
-              { parcelId: 'P011', mailId: 'M133', weight: '1.5kg', dimensions: '20x15x10 cm' },
-              { parcelId: 'P012', mailId: 'M134', weight: '3.2kg', dimensions: '28x22x14 cm' },
-              { parcelId: 'P013', mailId: 'M135', weight: '2kg', dimensions: '25x20x12 cm' },
-              { parcelId: 'P014', mailId: 'M136', weight: '4.5kg', dimensions: '35x25x20 cm' },
-              { parcelId: 'P015', mailId: 'M137', weight: '3.8kg', dimensions: '40x30x18 cm' }
-            ]
-          },
-          { 
-            id: 'B004', 
-            senderNode: 'Patiyala', 
-            receiverNode: 'Coimbatore', 
-            status: 'delayed', 
-            parcels: [
-              { parcelId: 'P016', mailId: 'M138', weight: '3kg', dimensions: '33x28x22 cm' },
-              { parcelId: 'P017', mailId: 'M139', weight: '5.5kg', dimensions: '50x40x30 cm' },
-              { parcelId: 'P018', mailId: 'M140', weight: '2.1kg', dimensions: '25x20x12 cm' },
-              { parcelId: 'P019', mailId: 'M141', weight: '4.2kg', dimensions: '45x35x20 cm' },
-              { parcelId: 'P020', mailId: 'M142', weight: '3.5kg', dimensions: '38x28x18 cm' }
-            ]
-          },
-          { 
-            id: 'B005', 
-            senderNode: 'Amritsar', 
-            receiverNode: 'Coimbatore', 
-            status: 'on-time', 
-            parcels: [
-              { parcelId: 'P021', mailId: 'M143', weight: '2kg', dimensions: '30x25x15 cm' },
-              { parcelId: 'P022', mailId: 'M144', weight: '3kg', dimensions: '28x24x16 cm' },
-              { parcelId: 'P023', mailId: 'M145', weight: '4kg', dimensions: '35x30x20 cm' },
-              { parcelId: 'P024', mailId: 'M146', weight: '1kg', dimensions: '20x15x10 cm' },
-              { parcelId: 'P025', mailId: 'M147', weight: '2.5kg', dimensions: '25x20x15 cm' }
-            ]
-          }
+      { 
+        id: 'B001', 
+        senderNode: 'Jalandhar', 
+        receiverNode: 'Madurai', 
+        status: 'on-time', 
+        parcels: [
+          { parcelId: 'P001', mailId: 'M123', weight: '2kg', dimensions: '30x20x15 cm' },
+          { parcelId: 'P002', mailId: 'M124', weight: '3kg', dimensions: '25x25x20 cm' },
+          { parcelId: 'P003', mailId: 'M125', weight: '1kg', dimensions: '15x10x8 cm' },
+          { parcelId: 'P004', mailId: 'M126', weight: '5kg', dimensions: '40x30x20 cm' },
+          { parcelId: 'P005', mailId: 'M127', weight: '2.5kg', dimensions: '35x25x18 cm' },
+          { parcelId: 'P005', mailId: 'M127', weight: '2.5kg', dimensions: '35x25x18 cm' },
+          { parcelId: 'P005', mailId: 'M127', weight: '2.5kg', dimensions: '35x25x18 cm' },
+         
+        ],
+        path: {
+          mode: 'Rail',
+          route: ['Jalandhar', 'Amritsar', 'Delhi', 'Madurai']
+        }
+      },
+      { 
+        id: 'B002', 
+        senderNode: 'Patiyala', 
+        receiverNode: 'Madurai', 
+        status: 'delayed', 
+        parcels: [
+          { parcelId: 'P006', mailId: 'M128', weight: '3kg', dimensions: '28x22x18 cm' },
+          { parcelId: 'P007', mailId: 'M129', weight: '2.5kg', dimensions: '32x24x16 cm' },
+          { parcelId: 'P008', mailId: 'M130', weight: '1.2kg', dimensions: '22x18x12 cm' },
+          { parcelId: 'P009', mailId: 'M131', weight: '4kg', dimensions: '38x30x22 cm' },
+          { parcelId: 'P010', mailId: 'M132', weight: '6kg', dimensions: '45x35x25 cm' }
+        ],
+        path: {
+          mode: 'Air',
+          route: ['Patiyala', 'Delhi', 'Mumbai', 'Madurai']
+        }
+      },
+      { 
+        id: 'B003', 
+        senderNode: 'Ludhiana', 
+        receiverNode: 'Vellore', 
+        status: 'on-time', 
+        parcels: [
+          { parcelId: 'P011', mailId: 'M133', weight: '1.5kg', dimensions: '20x15x10 cm' },
+          { parcelId: 'P012', mailId: 'M134', weight: '3.2kg', dimensions: '28x22x14 cm' },
+          { parcelId: 'P013', mailId: 'M135', weight: '2kg', dimensions: '25x20x12 cm' },
+          { parcelId: 'P014', mailId: 'M136', weight: '4.5kg', dimensions: '35x25x20 cm' },
+          { parcelId: 'P015', mailId: 'M137', weight: '3.8kg', dimensions: '40x30x18 cm' },
+          { parcelId: 'P016', mailId: 'M137', weight: '3.8kg', dimensions: '40x30x18 cm' },
+          { parcelId: 'P016', mailId: 'M137', weight: '3.8kg', dimensions: '40x30x18 cm' },
+        ],
+        path: {
+          mode: 'Rail',
+          route: ['Ludhiana', 'Chandigarh', 'Bangalore', 'Vellore']
+        }
+      },
+      { 
+        id: 'B004', 
+        senderNode: 'Amritsar', 
+        receiverNode: 'Coimbatore', 
+        status: 'delayed', 
+        parcels: [
+          { parcelId: 'P016', mailId: 'M138', weight: '3kg', dimensions: '33x28x22 cm' },
+          { parcelId: 'P017', mailId: 'M139', weight: '5.5kg', dimensions: '50x40x30 cm' },
+          { parcelId: 'P018', mailId: 'M140', weight: '2.1kg', dimensions: '25x20x12 cm' },
+          { parcelId: 'P019', mailId: 'M141', weight: '4.2kg', dimensions: '45x35x20 cm' },
+          { parcelId: 'P020', mailId: 'M142', weight: '3.5kg', dimensions: '38x28x18 cm' },
+          { parcelId: 'P020', mailId: 'M142', weight: '3.5kg', dimensions: '38x28x18 cm' },
+          { parcelId: 'P020', mailId: 'M142', weight: '3.5kg', dimensions: '38x28x18 cm' },
+          { parcelId: 'P020', mailId: 'M142', weight: '3.5kg', dimensions: '38x28x18 cm' },
+          { parcelId: 'P020', mailId: 'M142', weight: '3.5kg', dimensions: '38x28x18 cm' },
+        ],
+        path: {
+          mode: 'Rail',
+          route: ['Amritsar', 'Delhi', 'Hyderabad', 'Coimbatore']
+        }
+      },
+      { 
+        id: 'B005', 
+        senderNode: 'Chandigarh', 
+        receiverNode: 'Coimbatore', 
+        status: 'on-time', 
+        parcels: [
+          { parcelId: 'P021', mailId: 'M143', weight: '2kg', dimensions: '30x25x15 cm' },
+          { parcelId: 'P022', mailId: 'M144', weight: '3kg', dimensions: '28x24x16 cm' },
+          { parcelId: 'P023', mailId: 'M145', weight: '4kg', dimensions: '35x30x20 cm' },
+          { parcelId: 'P024', mailId: 'M146', weight: '1kg', dimensions: '20x15x10 cm' },
+          { parcelId: 'P025', mailId: 'M147', weight: '2.5kg', dimensions: '25x20x15 cm' },
+          { parcelId: 'P025', mailId: 'M147', weight: '2.5kg', dimensions: '25x20x15 cm' },
+        ],
+        path: {
+          mode: 'Air',
+          route: ['Chandigarh', 'Delhi', 'Bangalore', 'Coimbatore']
+        }
+      },
+      // { 
+      //   id: 'B006', 
+      //   senderNode: 'New Delhi', 
+      //   receiverNode: 'Bangalore', 
+      //   status: 'on-time', 
+      //   parcels: [
+      //     { parcelId: 'P026', mailId: 'M148', weight: '1.8kg', dimensions: '25x22x14 cm' },
+      //     { parcelId: 'P027', mailId: 'M149', weight: '3.6kg', dimensions: '32x28x18 cm' },
+      //     { parcelId: 'P028', mailId: 'M150', weight: '2.2kg', dimensions: '26x20x16 cm' },
+      //     { parcelId: 'P029', mailId: 'M151', weight: '4.8kg', dimensions: '40x30x20 cm' },
+      //     { parcelId: 'P030', mailId: 'M152', weight: '3.9kg', dimensions: '45x35x22 cm' }
+      //   ],
+      //   path: {
+      //     mode: 'Rail',
+      //     route: ['New Delhi', 'Nagpur', 'Hyderabad', 'Bangalore']
+      //   }
+      // }
         ];
         setBundles(mockBundles);
       }, []);
 
+   
+
+    
   const handleRowClick = (bundle) => {
+    console.log(bundle);
+    console.log(bundle.path);
+    setPath(bundle.path);
+    console.log(path);
+
     setSelectedBundle(bundle);
     setShowModal(true);
   };
@@ -133,15 +191,25 @@ const Dashboard = () => {
 
   };
 
+
+  const all=async()=>{
+    MySwal.fire({
+      icon: "success",
+      title: "PATH",
+      text: "Jalandhar - Amritsar - 20 - Truck - 8:30 to 9:00 - Rs 1400, Patiyala - Amritsar - 30 - Train - 8:00 to 8:40 - Rs 1500, Amritsar - Kolkata - 60 - Flight - 11:30 to 12:00 - Rs 25000, Kolkata - Chennai - 60 - Flight - 14:00 to 17:00 - Rs 24000, Chennai - Coimbatore - 20 - Train - 17:30 to 18:00 - Rs 1200, Chennai - Vellore - 10 - Train - 18:00 to 18:30 - Rs 500, Jalandhar - Madurai - 30 - Truck - 17:15 to 18:00 - Rs 800".split(",").join("\n"),
+    });
+  }
+
   const handleApplyAlgo = async (bundleId) => {
     const weatherGood = Math.random()%2;
-    
+    const routeDetails = path.route.join(" → "); 
+    console.log(routeDetails);
     if(weatherGood)
     {
       MySwal.fire({
         icon: "success",
         title: "PATH",
-        text: "Jalandhar - Amritsar - 20 - Truck - 8:30 to 9:00 - Rs 1400, Patiyala - Amritsar - 30 - Train - 8:00 to 8:40 - Rs 1500, Amritsar - Bombay - 60 - Flight - 10:30 to 12:00 - Rs 20000, Bombay - Chennai - 60 - Flight - 14:00 to 16:00 - Rs 15000, Chennai - Coimbatore - 20 - Train - 16:30 to 17:00 - Rs 1200, Chennai - Vellore - 10 - Train - 17:00 to 17:30 - Rs 500, Jalandhar - Madurai - 30 - Truck - 16:15 to 17:00 - Rs 600".split(",").join("\n"),
+        text: `Mode: ${path.mode}\nRoute: ${routeDetails}`,
       });
     }
     else 
@@ -184,8 +252,8 @@ const Dashboard = () => {
 
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 mt-12">Dynamic Mail Transmission Route Visualization</h1>
+    <div className="p-6 bg-gray-100 min-h-screen dark:bg-slate-800">
+      <h1 className="text-2xl font-bold mb-4 mt-12 ">Dynamic Mail Transmission Route Visualization</h1>
       <div className="overflow-x-auto">
       <Button
        className='mx-4 mb-4 '
@@ -199,6 +267,7 @@ const Dashboard = () => {
         });
 
         try {
+          all();
           for (const bundle of bundles) {
             await handleButtonClick(bundle.id); // Handle each bundle sequentially
           }
@@ -225,26 +294,26 @@ const Dashboard = () => {
             <Table.HeadCell>Parcels</Table.HeadCell>
             <Table.HeadCell>Actions</Table.HeadCell>
           </Table.Head>
-          <Table.Body className="divide-y">
+          <Table.Body className="divide-y ">
             {bundles.map((bundle) => (
               <Table.Row
                 key={bundle.id}
-                className="bg-white hover:bg-gray-100 cursor-pointer"
+                className="bg-white hover:bg-gray-100 dark:bg-slate-400 cursor-pointer"
                 onClick={() => handleRowClick(bundle)}
               >
-                <Table.Cell className="whitespace-nowrap font-medium text-gray-900">
+                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-wh">
                   {bundle.id}
                 </Table.Cell>
-                <Table.Cell>{bundle.senderNode}</Table.Cell>
-                <Table.Cell>{bundle.receiverNode}</Table.Cell>
+                <Table.Cell className='dark:text-black'>{bundle.senderNode}</Table.Cell>
+                <Table.Cell className='dark:text-black'> {bundle.receiverNode}</Table.Cell>
                 <Table.Cell>
                   {bundle.status === 'delayed' ? (
-                    <span className="text-red-500">Pending</span>
+                    <span className="text-red-500 font-bold">Pending</span>
                   ) : (
-                    <span className="text-green-500">Dispatched</span>
+                    <span className="text-green-500 dark:text-blue-500 font-bold">Arrived</span>
                   )}
                 </Table.Cell>
-                <Table.Cell>5</Table.Cell>
+                <Table.Cell className='dark:text-black'>{bundle.parcels.length}</Table.Cell>
                 <Table.Cell>
                 <Button
                   onClick={(e) => {
