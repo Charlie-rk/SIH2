@@ -12,25 +12,25 @@ import { Modal, Button } from 'flowbite-react';
 
 /**
  * Dijkstra’s Algorithm Implementation.
- * It uses all nodes (both primary and secondary) from the provided graphData.
+ * It uses a combined weight (distance + cost) to determine the optimal path.
  */
 function dijkstra(graphData, source, target, disabledNodes = []) {
-  const distances = {};
+  const combined = {};
   const previous = {};
   const unvisited = new Set(Object.keys(graphData));
 
   for (let city in graphData) {
-    distances[city] = Infinity;
+    combined[city] = Infinity;
     previous[city] = null;
   }
-  distances[source] = 0;
+  combined[source] = 0;
 
   while (unvisited.size > 0) {
     let currentCity = null;
-    let minDist = Infinity;
+    let minCombined = Infinity;
     for (let city of unvisited) {
-      if (distances[city] < minDist) {
-        minDist = distances[city];
+      if (combined[city] < minCombined) {
+        minCombined = combined[city];
         currentCity = city;
       }
     }
@@ -40,12 +40,12 @@ function dijkstra(graphData, source, target, disabledNodes = []) {
     unvisited.delete(currentCity);
     const neighbors = graphData[currentCity].neighbors;
     for (let neighbor in neighbors) {
-      if (disabledNodes.includes(neighbor) || disabledNodes.includes(currentCity)) {
-        continue;
-      }
-      const alt = distances[currentCity] + neighbors[neighbor].distance;
-      if (alt < distances[neighbor]) {
-        distances[neighbor] = alt;
+      if (disabledNodes.includes(neighbor) || disabledNodes.includes(currentCity)) continue;
+      // Use combined weight = distance + cost.
+      const weight = neighbors[neighbor].distance + neighbors[neighbor].cost;
+      const alt = combined[currentCity] + weight;
+      if (alt < combined[neighbor]) {
+        combined[neighbor] = alt;
         previous[neighbor] = currentCity;
       }
     }
@@ -57,7 +57,7 @@ function dijkstra(graphData, source, target, disabledNodes = []) {
     path.unshift(current);
     current = previous[current];
   }
-  return distances[target] === Infinity ? null : path;
+  return combined[target] === Infinity ? null : path;
 }
 
 /**
@@ -189,13 +189,19 @@ export default function DijkstraGraph({ graphData, source, destination }) {
   const [disabledNodes, setDisabledNodes] = useState([]);
   const [optimalPath, setOptimalPath] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
+  const [totalDistance, setTotalDistance] = useState(0);
   const [reactFlowNodes, setNodes, onNodesChange] = useNodesState([]);
   const [reactFlowEdges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState(null);
   const [showNodeModal, setShowNodeModal] = useState(false);
 
   useEffect(() => {
-    const { nodes: newNodes, edges: newEdges } = buildFlowElements(graphData, disabledNodes, source, destination);
+    const { nodes: newNodes, edges: newEdges } = buildFlowElements(
+      graphData,
+      disabledNodes,
+      source,
+      destination
+    );
     setNodes(newNodes);
     setEdges(newEdges);
   }, [graphData, disabledNodes, setNodes, setEdges, source, destination]);
@@ -204,19 +210,23 @@ export default function DijkstraGraph({ graphData, source, destination }) {
     const path = dijkstra(graphData, source, destination, disabledNodes);
     setOptimalPath(path || []);
 
-    // Calculate the total cost of the path.
+    // Calculate total cost and distance along the path if it exists.
     if (path && path.length > 1) {
       let costSum = 0;
+      let distanceSum = 0;
       for (let i = 0; i < path.length - 1; i++) {
         const current = path[i];
         const next = path[i + 1];
         if (graphData[current].neighbors[next]) {
           costSum += graphData[current].neighbors[next].cost;
+          distanceSum += graphData[current].neighbors[next].distance;
         }
       }
       setTotalCost(costSum);
+      setTotalDistance(distanceSum);
     } else {
       setTotalCost(0);
+      setTotalDistance(0);
     }
   }, [graphData, source, destination, disabledNodes]);
 
@@ -239,15 +249,15 @@ export default function DijkstraGraph({ graphData, source, destination }) {
         cost = neighbors[neighborKey].cost;
         distance = neighbors[neighborKey].distance;
       }
-      setSelectedNode({ 
-        name: cityName, 
-        state: nodeData.state, 
-        isPrimary: nodeData.isPrimary, 
-        weather, 
-        load, 
-        mode, 
-        cost, 
-        distance 
+      setSelectedNode({
+        name: cityName,
+        state: nodeData.state,
+        isPrimary: nodeData.isPrimary,
+        weather,
+        load,
+        mode,
+        cost,
+        distance,
       });
       setShowNodeModal(true);
     },
@@ -289,20 +299,38 @@ export default function DijkstraGraph({ graphData, source, destination }) {
       {/* Details Panel */}
       <div className="md:w-1/3 w-full p-6 overflow-auto bg-white shadow-lg rounded-lg">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Optimized Route</h2>
-        <p className="text-gray-700 mb-1"><strong>Source:</strong> <span className="text-red-600 font-bold">{source}</span></p>
-        <p className="text-gray-700 mb-4"><strong>Destination:</strong> <span className="text-green-500 font-extrabold">{destination}</span></p>
+        <p className="text-gray-700 mb-1">
+          <strong>Source:</strong>{" "}
+          <span className="text-orange-500 font-bold">{source}</span>
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Destination:</strong>{" "}
+          <span className="text-green-500 font-extrabold">{destination}</span>
+        </p>
         {optimalPath.length > 0 ? (
           <div className="mt-4">
-            <p className="font-semibold text-lg text-gray-800">Best Path (Dijkstra):</p>
-            <p className="mt-2 text-gray-700">{
-              optimalPath.map(city => (
+            <p className="font-semibold text-lg text-gray-800">
+              Best Path (Dijkstra):
+            </p>
+            <p className="mt-2 text-gray-700">
+              {optimalPath.map((city) => (
                 <span key={city} className="font-bold">
-                  {city} ({graphData[city].state}, {graphData[city].isPrimary ? 'Primary' : 'Secondary'})
-                  {city !== optimalPath[optimalPath.length - 1] && ' → '}
+                  {city} ({graphData[city].state},{" "}
+                  {graphData[city].isPrimary ? "Primary" : "Secondary"})
+                  {city !== optimalPath[optimalPath.length - 1] && " → "}
                 </span>
-              ))
-            }</p>
-            <p className="mt-4 font-semibold text-gray-800">Total Cost: <span className="text-indigo-600">{totalCost}</span></p>
+              ))}
+            </p>
+            <div className="mt-4 space-y-1">
+              <p className="font-semibold text-gray-800">
+                Total Cost:{" "}
+                <span className="text-indigo-600">{totalCost}</span>
+              </p>
+              <p className="font-semibold text-gray-800">
+                Total Distance:{" "}
+                <span className="text-indigo-600">{totalDistance}</span>
+              </p>
+            </div>
           </div>
         ) : (
           <div className="mt-4 text-red-500 font-bold">
@@ -313,9 +341,15 @@ export default function DijkstraGraph({ graphData, source, destination }) {
           <h3 className="font-semibold text-lg text-gray-800">Disabled Nodes</h3>
           {disabledNodes.length > 0 ? (
             <ul className="mt-2 space-y-2">
-              {disabledNodes.map(node => (
-                <li key={node} className="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-md">
-                  <span className="text-gray-700 font-bold">{node} ({graphData[node].state}, {graphData[node].isPrimary ? 'Primary' : 'Secondary'})</span>
+              {disabledNodes.map((node) => (
+                <li
+                  key={node}
+                  className="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-md"
+                >
+                  <span className="text-gray-700 font-bold">
+                    {node} ({graphData[node].state},{" "}
+                    {graphData[node].isPrimary ? "Primary" : "Secondary"})
+                  </span>
                   <Button color="success" onClick={() => handleEnableNode(node)}>
                     Enable
                   </Button>
@@ -336,26 +370,58 @@ export default function DijkstraGraph({ graphData, source, destination }) {
         <Modal.Body>
           {selectedNode && (
             <div className="space-y-3">
-              <p><strong className="text-gray-800">State:</strong> {selectedNode.state}</p>
-              <p><strong className="text-gray-800">Type:</strong> {selectedNode.isPrimary ? 'Primary' : 'Secondary'}</p>
-              <p><strong className="text-gray-800">Weather (to first neighbor):</strong> {selectedNode.weather}</p>
-              <p><strong className="text-gray-800">Load (to first neighbor):</strong> {selectedNode.load}</p>
-              <p><strong className="text-gray-800">Mode (to first neighbor):</strong> {selectedNode.mode}</p>
-              <p><strong className="text-gray-800">Distance (to first neighbor):</strong> {selectedNode.distance}</p>
-              <p><strong className="text-gray-800">Cost (to first neighbor):</strong> {selectedNode.cost}</p>
+              <p>
+                <strong className="text-gray-800">State:</strong>{" "}
+                {selectedNode.state}
+              </p>
+              <p>
+                <strong className="text-gray-800">Type:</strong>{" "}
+                {selectedNode.isPrimary ? "Primary" : "Secondary"}
+              </p>
+              <p>
+                <strong className="text-gray-800">
+                  Weather (to first neighbor):
+                </strong>{" "}
+                {selectedNode.weather}
+              </p>
+              <p>
+                <strong className="text-gray-800">
+                  Load (to first neighbor):
+                </strong>{" "}
+                {selectedNode.load}
+              </p>
+              <p>
+                <strong className="text-gray-800">
+                  Mode (to first neighbor):
+                </strong>{" "}
+                {selectedNode.mode}
+              </p>
+              <p>
+                <strong className="text-gray-800">
+                  Distance (to first neighbor):
+                </strong>{" "}
+                {selectedNode.distance}
+              </p>
+              <p>
+                <strong className="text-gray-800">
+                  Cost (to first neighbor):
+                </strong>{" "}
+                {selectedNode.cost}
+              </p>
             </div>
           )}
         </Modal.Body>
         <Modal.Footer>
-          {selectedNode && (disabledNodes.includes(selectedNode.name) ? (
-            <Button color="success" onClick={() => handleEnableNode(selectedNode.name)}>
-              Enable Node
-            </Button>
-          ) : (
-            <Button color="failure" onClick={() => handleDisableNode(selectedNode.name)}>
-              Disable Node
-            </Button>
-          ))} 
+          {selectedNode &&
+            (disabledNodes.includes(selectedNode.name) ? (
+              <Button color="success" onClick={() => handleEnableNode(selectedNode.name)}>
+                Enable Node
+              </Button>
+            ) : (
+              <Button color="failure" onClick={() => handleDisableNode(selectedNode.name)}>
+                Disable Node
+              </Button>
+            ))} 
           <Button color="gray" onClick={() => setShowNodeModal(false)}>
             Close
           </Button>
