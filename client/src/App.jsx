@@ -70,7 +70,7 @@ export default function App() {
           <Route path="/level2profile" element={<Level2Dashboard />} />
           <Route path="/notification" element={<Notification />} />
           <Route path="/findroute" element={<FindRoute />} />
-          <Route path="/findroute1" element={<DijkstraGraph />} />
+          {/* <Route path="/findroute1" element={<DijkstraGraph />} /> */}
         </Route>
 
         {/* <Route path='/swap-request/:pnrNumber' element={<SeatSelectionForm/>} />
