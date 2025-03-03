@@ -24,6 +24,7 @@ import { useSelector } from "react-redux";
 import CustomerSupport from "./pages/CustomerSupport";
 import SignIn1 from "./pages/SignIn1";
 import Boarding from "./components/Boarding";
+import DijkstraGraph from "./components/DijkstraGraph";
 
 export default function App() {
   const { currentUser, loading } = useSelector((state) => state.user);
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="/level2profile" element={<Level2Dashboard />} />
           <Route path="/notification" element={<Notification />} />
           <Route path="/findroute" element={<FindRoute />} />
+          <Route path="/findroute1" element={<DijkstraGraph />} />
         </Route>
 
         {/* <Route path='/swap-request/:pnrNumber' element={<SeatSelectionForm/>} />
