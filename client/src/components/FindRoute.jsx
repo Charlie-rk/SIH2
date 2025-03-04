@@ -270,22 +270,22 @@ const Dashboard = () => {
     const weathers = ["Sunny", "Rainy", "Cloudy", "Windy", "Clear"];
     const loads = ["High", "Medium", "Low"];
     const modes = ["Truck", "Rail", "Air", "Ship", "Bus"];
-
-    // Build graph: sender and receiver are always primary.
+  
+    // Assume cityToState is available in scope.
     const graph = {};
     bundle.routeNodes.forEach((node, index) => {
       graph[node.name] = {
         state: cityToState[node.name] || "Unknown",
-        isPrimary:
-          index === 0 || index === bundle.routeNodes.length - 1
-            ? true
-            : Math.random() < 0.3,
+        // Sender and receiver are always primary.
+        isPrimary: index === 0 || index === bundle.routeNodes.length - 1 ? true : Math.random() < 0.3,
         neighbors: {},
       };
     });
-
+  
     const names = bundle.routeNodes.map((n) => n.name);
-
+    const sourceName = bundle.routeNodes[0].name;
+    const destinationName = bundle.routeNodes[bundle.routeNodes.length - 1].name;
+  
     // Create sequential (mandatory) connections between adjacent nodes.
     for (let i = 0; i < names.length - 1; i++) {
       const current = names[i];
@@ -295,41 +295,37 @@ const Dashboard = () => {
       const weather = weathers[Math.floor(Math.random() * weathers.length)];
       const load = loads[Math.floor(Math.random() * loads.length)];
       const mode = modes[Math.floor(Math.random() * modes.length)];
-
       graph[current].neighbors[next] = { distance, cost, weather, load, mode };
       graph[next].neighbors[current] = { distance, cost, weather, load, mode };
     }
-
-    // Add extra edges between every pair of nodes if not already connected, with 70% probability.
+  
+    // Add extra edges between every pair of nodes (if not already connected) with a 70% probability.
+    // Avoid adding a direct edge between source and destination.
     for (let i = 0; i < names.length; i++) {
       for (let j = i + 1; j < names.length; j++) {
         const nodeA = names[i];
         const nodeB = names[j];
+        if (
+          (nodeA === sourceName && nodeB === destinationName) ||
+          (nodeA === destinationName && nodeB === sourceName)
+        ) {
+          continue; // Skip direct edge between sender and receiver.
+        }
         if (!graph[nodeA].neighbors[nodeB] && Math.random() < 0.7) {
           const distance = Math.floor(Math.random() * 230) + 20;
           const cost = Math.floor(Math.random() * 400) + 100;
           const weather = weathers[Math.floor(Math.random() * weathers.length)];
           const load = loads[Math.floor(Math.random() * loads.length)];
           const mode = modes[Math.floor(Math.random() * modes.length)];
-          graph[nodeA].neighbors[nodeB] = {
-            distance,
-            cost,
-            weather,
-            load,
-            mode,
-          };
-          graph[nodeB].neighbors[nodeA] = {
-            distance,
-            cost,
-            weather,
-            load,
-            mode,
-          };
+          graph[nodeA].neighbors[nodeB] = { distance, cost, weather, load, mode };
+          graph[nodeB].neighbors[nodeA] = { distance, cost, weather, load, mode };
         }
       }
     }
+  
     return graph;
   };
+  
 
   // When a bundle row is clicked, generate its graph data and open the Dijkstra view.
   const handleBundleClick = (bundle) => {
